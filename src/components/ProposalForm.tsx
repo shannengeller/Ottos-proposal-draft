@@ -15,56 +15,25 @@ interface ProposalFormProps {
 
 const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<Omit<ProposalData, 'createdAt'>>({
+  const [formData, setFormData] = useState({
     clientName: '',
     scopeOfWork: '',
-    priceRange: '',
+    lowPriceRange: '',
+    highPriceRange: '',
     jobDuration: ''
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'priceRange') {
-      // Handle price range formatting with dash or hyphen
-      const inputValue = value;
+    if (name === 'lowPriceRange' || name === 'highPriceRange') {
+      // Handle price formatting
+      const numericOnly = value.replace(/[$,]/g, '').trim();
       
-      // Check if input contains a separator for range
-      if (inputValue.includes('-')) {
-        // Handle as a range
-        const parts = inputValue.split('-').map(part => part.trim());
-        
-        // Format each part separately
-        const formattedParts = parts.map(part => {
-          // Only process parts that aren't already formatted or empty
-          if (!part) return '';
-          
-          // Remove existing formatting ($ and commas)
-          const numericOnly = part.replace(/[$,]/g, '').trim();
-          
-          // If no numeric value (just symbols), return empty
-          if (!numericOnly || !/\d/.test(numericOnly)) return '';
-          
-          // Format the numeric value
-          return formatCurrency(numericOnly);
-        });
-        
-        // Join the formatted parts
-        setFormData(prev => ({
-          ...prev,
-          [name]: formattedParts.join(' - ').replace(/\s+-\s+$/, '')  // Remove trailing dash if second part is empty
-        }));
+      if (!numericOnly) {
+        setFormData(prev => ({ ...prev, [name]: '' }));
       } else {
-        // Handle as a single value
-        // Remove existing formatting ($ and commas)
-        const numericOnly = inputValue.replace(/[$,]/g, '').trim();
-        
-        if (!numericOnly) {
-          setFormData(prev => ({ ...prev, [name]: '' }));
-        } else {
-          // Format the single value
-          setFormData(prev => ({ ...prev, [name]: formatCurrency(numericOnly) }));
-        }
+        setFormData(prev => ({ ...prev, [name]: formatCurrency(numericOnly) }));
       }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -72,7 +41,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
   };
   
   const formatCurrency = (value: string): string => {
-    // Convert to number and format with commas
     // Remove all non-numeric characters
     const numericValue = value.replace(/\D/g, '');
     
@@ -87,18 +55,26 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     
     // Validate form data
-    if (!formData.clientName || !formData.scopeOfWork || !formData.priceRange || !formData.jobDuration) {
+    if (!formData.clientName || !formData.scopeOfWork || !formData.lowPriceRange || !formData.jobDuration) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive"
       });
       return;
     }
     
+    // Combine price ranges for the final data
+    const priceRange = formData.highPriceRange 
+      ? `${formData.lowPriceRange} - ${formData.highPriceRange}`
+      : formData.lowPriceRange;
+    
     // Include the current date and submit
     onSubmit({
-      ...formData,
+      clientName: formData.clientName,
+      scopeOfWork: formData.scopeOfWork,
+      priceRange: priceRange,
+      jobDuration: formData.jobDuration,
       createdAt: new Date()
     });
     
@@ -141,15 +117,28 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="priceRange">Price Range</Label>
-            <Input 
-              id="priceRange"
-              name="priceRange"
-              placeholder="e.g. $5,000 - $7,500"
-              value={formData.priceRange}
-              onChange={handleChange}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lowPriceRange">Minimum Price</Label>
+              <Input 
+                id="lowPriceRange"
+                name="lowPriceRange"
+                placeholder="e.g. $5,000"
+                value={formData.lowPriceRange}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="highPriceRange">Maximum Price</Label>
+              <Input 
+                id="highPriceRange"
+                name="highPriceRange"
+                placeholder="e.g. $7,500 (optional)"
+                value={formData.highPriceRange}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
