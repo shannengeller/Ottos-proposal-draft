@@ -27,15 +27,34 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     
     if (name === 'priceRange') {
       // Handle price range formatting
-      const numericValue = value.replace(/[^0-9]/g, '');
+      let formattedValue = value;
       
-      if (numericValue === '') {
-        setFormData(prev => ({ ...prev, [name]: '' }));
-        return;
+      // Split by hyphen to handle ranges
+      const parts = value.split('-').map(part => part.trim());
+      
+      if (parts.length === 1) {
+        // Single value
+        const numericValue = parts[0].replace(/[^0-9]/g, '');
+        
+        if (numericValue === '') {
+          setFormData(prev => ({ ...prev, [name]: '' }));
+          return;
+        }
+        
+        formattedValue = formatCurrency(numericValue);
+      } else if (parts.length === 2) {
+        // Range: format each part
+        const formattedParts = parts.map(part => {
+          const numericValue = part.replace(/[^0-9]/g, '');
+          return numericValue ? formatCurrency(numericValue) : '';
+        });
+        
+        // Only include non-empty parts
+        formattedValue = formattedParts
+          .filter(Boolean)
+          .join(' - ');
       }
       
-      // Format the number with commas and dollar sign
-      const formattedValue = formatCurrency(numericValue);
       setFormData(prev => ({ ...prev, [name]: formattedValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
