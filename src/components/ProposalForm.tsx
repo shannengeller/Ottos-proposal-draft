@@ -24,7 +24,28 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'priceRange') {
+      // Handle price range formatting
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      if (numericValue === '') {
+        setFormData(prev => ({ ...prev, [name]: '' }));
+        return;
+      }
+      
+      // Format the number with commas and dollar sign
+      const formattedValue = formatCurrency(numericValue);
+      setFormData(prev => ({ ...prev, [name]: formattedValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  
+  const formatCurrency = (value: string): string => {
+    // Convert to number and format with commas
+    const number = parseInt(value, 10);
+    return `$${number.toLocaleString('en-US')}`;
   };
   
   const handleSubmit = (e: React.FormEvent) => {
