@@ -26,36 +26,46 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     const { name, value } = e.target;
     
     if (name === 'priceRange') {
-      // Handle price range formatting
-      let formattedValue = value;
+      // Handle price range formatting with dash or hyphen
+      const inputValue = value;
       
-      // Split by hyphen to handle ranges
-      const parts = value.split('-').map(part => part.trim());
-      
-      if (parts.length === 1) {
-        // Single value
-        const numericValue = parts[0].replace(/[^0-9]/g, '');
+      // Check if input contains a separator for range
+      if (inputValue.includes('-')) {
+        // Handle as a range
+        const parts = inputValue.split('-').map(part => part.trim());
         
-        if (numericValue === '') {
-          setFormData(prev => ({ ...prev, [name]: '' }));
-          return;
-        }
-        
-        formattedValue = formatCurrency(numericValue);
-      } else if (parts.length === 2) {
-        // Range: format each part
+        // Format each part separately
         const formattedParts = parts.map(part => {
-          const numericValue = part.replace(/[^0-9]/g, '');
-          return numericValue ? formatCurrency(numericValue) : '';
+          // Only process parts that aren't already formatted or empty
+          if (!part) return '';
+          
+          // Remove existing formatting ($ and commas)
+          const numericOnly = part.replace(/[$,]/g, '').trim();
+          
+          // If no numeric value (just symbols), return empty
+          if (!numericOnly || !/\d/.test(numericOnly)) return '';
+          
+          // Format the numeric value
+          return formatCurrency(numericOnly);
         });
         
-        // Only include non-empty parts
-        formattedValue = formattedParts
-          .filter(Boolean)
-          .join(' - ');
+        // Join the formatted parts
+        setFormData(prev => ({
+          ...prev,
+          [name]: formattedParts.join(' - ').replace(/\s+-\s+$/, '')  // Remove trailing dash if second part is empty
+        }));
+      } else {
+        // Handle as a single value
+        // Remove existing formatting ($ and commas)
+        const numericOnly = inputValue.replace(/[$,]/g, '').trim();
+        
+        if (!numericOnly) {
+          setFormData(prev => ({ ...prev, [name]: '' }));
+        } else {
+          // Format the single value
+          setFormData(prev => ({ ...prev, [name]: formatCurrency(numericOnly) }));
+        }
       }
-      
-      setFormData(prev => ({ ...prev, [name]: formattedValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -63,7 +73,13 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
   
   const formatCurrency = (value: string): string => {
     // Convert to number and format with commas
-    const number = parseInt(value, 10);
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+    
+    if (!numericValue) return '';
+    
+    // Parse as number and format
+    const number = parseInt(numericValue, 10);
     return `$${number.toLocaleString('en-US')}`;
   };
   
