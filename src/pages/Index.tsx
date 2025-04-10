@@ -16,7 +16,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <header className="bg-primary text-white py-4">
+      <header className="bg-secondary text-white py-4">
         <div className="container mx-auto px-4">
           <h1 className="text-2xl font-bold">Otto's Design & Contracting Co.</h1>
           <p className="text-sm opacity-80">Proposal Management System</p>
@@ -32,12 +32,12 @@ const Index = () => {
           <div className="md:col-span-2 lg:col-span-2">
             {proposalData ? (
               <Tabs defaultValue="email" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="email" className="flex items-center gap-2">
+                <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/10">
+                  <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
                     <Mail className="h-4 w-4" />
                     Email Draft
                   </TabsTrigger>
-                  <TabsTrigger value="csv" className="flex items-center gap-2">
+                  <TabsTrigger value="csv" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
                     <Database className="h-4 w-4" />
                     CSV Export
                   </TabsTrigger>
@@ -64,8 +64,8 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="bg-muted/50 py-4 border-t mt-auto">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      <footer className="bg-secondary text-white py-4 border-t mt-auto">
+        <div className="container mx-auto px-4 text-center text-sm">
           &copy; {new Date().getFullYear()} Otto's Contracting - Proposal Management System
         </div>
       </footer>
