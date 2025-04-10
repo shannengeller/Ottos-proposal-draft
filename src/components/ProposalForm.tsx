@@ -17,6 +17,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     clientName: '',
+    clientEmail: '',
     scopeOfWork: '',
     lowPriceRange: '',
     highPriceRange: '',
@@ -55,10 +56,21 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     
     // Validate form data
-    if (!formData.clientName || !formData.scopeOfWork || !formData.lowPriceRange || !formData.jobDuration) {
+    if (!formData.clientName || !formData.clientEmail || !formData.scopeOfWork || !formData.lowPriceRange || !formData.jobDuration) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.clientEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
         variant: "destructive"
       });
       return;
@@ -72,6 +84,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     // Include the current date and submit
     onSubmit({
       clientName: formData.clientName,
+      clientEmail: formData.clientEmail,
       scopeOfWork: formData.scopeOfWork,
       priceRange: priceRange,
       jobDuration: formData.jobDuration,
@@ -94,15 +107,29 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
       </CardHeader>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="clientName">Client Name</Label>
-            <Input 
-              id="clientName"
-              name="clientName"
-              placeholder="John Smith"
-              value={formData.clientName}
-              onChange={handleChange}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="clientName">Client Name</Label>
+              <Input 
+                id="clientName"
+                name="clientName"
+                placeholder="John Smith"
+                value={formData.clientName}
+                onChange={handleChange}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="clientEmail">Client Email</Label>
+              <Input 
+                id="clientEmail"
+                name="clientEmail"
+                type="email"
+                placeholder="client@example.com"
+                value={formData.clientEmail}
+                onChange={handleChange}
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
