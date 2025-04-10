@@ -223,11 +223,11 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="meetingNotes">Meeting Notes</Label>
+            <Label htmlFor="meetingNotes">Additional Notes</Label>
             <Textarea 
               id="meetingNotes"
               name="meetingNotes"
-              placeholder="Add any notes from the meeting discussion"
+              placeholder="Add any additional notes from the discussion"
               rows={4}
               value={formData.meetingNotes}
               onChange={handleChange}
