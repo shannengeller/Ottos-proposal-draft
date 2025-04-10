@@ -8,6 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { ProposalData } from '@/utils/formatters';
 import { FileText, Send } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ProposalFormProps {
   onSubmit: (data: ProposalData) => void;
@@ -21,7 +28,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     scopeOfWork: '',
     lowPriceRange: '',
     highPriceRange: '',
-    jobDuration: ''
+    jobDurationNumber: '',
+    jobDurationUnit: 'weeks'
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -36,9 +44,17 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
       } else {
         setFormData(prev => ({ ...prev, [name]: formatCurrency(numericOnly) }));
       }
+    } else if (name === 'jobDurationNumber') {
+      // Only allow positive numbers for job duration
+      const numericValue = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleSelectChange = (value: string, name: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
   
   const formatCurrency = (value: string): string => {
@@ -56,7 +72,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     
     // Validate form data
-    if (!formData.clientName || !formData.clientEmail || !formData.scopeOfWork || !formData.lowPriceRange || !formData.jobDuration) {
+    if (!formData.clientName || !formData.clientEmail || !formData.scopeOfWork || 
+        !formData.lowPriceRange || !formData.jobDurationNumber) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -81,13 +98,16 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
       ? `${formData.lowPriceRange} - ${formData.highPriceRange}`
       : formData.lowPriceRange;
     
+    // Format the job duration
+    const jobDuration = `${formData.jobDurationNumber} ${formData.jobDurationUnit}`;
+    
     // Include the current date and submit
     onSubmit({
       clientName: formData.clientName,
       clientEmail: formData.clientEmail,
       scopeOfWork: formData.scopeOfWork,
       priceRange: priceRange,
-      jobDuration: formData.jobDuration,
+      jobDuration: jobDuration,
       createdAt: new Date()
     });
     
@@ -169,14 +189,35 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="jobDuration">Job Duration</Label>
-            <Input 
-              id="jobDuration"
-              name="jobDuration"
-              placeholder="e.g. 3-4 weeks"
-              value={formData.jobDuration}
-              onChange={handleChange}
-            />
+            <Label>Job Duration</Label>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <Input 
+                  id="jobDurationNumber"
+                  name="jobDurationNumber"
+                  placeholder="Enter number"
+                  value={formData.jobDurationNumber}
+                  onChange={handleChange}
+                  type="text" 
+                  inputMode="numeric"
+                />
+              </div>
+              <div className="w-40">
+                <Select 
+                  value={formData.jobDurationUnit} 
+                  onValueChange={(value) => handleSelectChange(value, 'jobDurationUnit')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="weeks">Weeks</SelectItem>
+                    <SelectItem value="months">Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           
           <Button type="submit" className="w-full gap-2">
