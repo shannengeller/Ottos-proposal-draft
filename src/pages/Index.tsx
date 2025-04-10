@@ -18,7 +18,7 @@ const Index = () => {
     <div className="min-h-screen bg-muted/30">
       <header className="bg-primary text-white py-4">
         <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold">Otto's Contracting</h1>
+          <h1 className="text-2xl font-bold">Otto's Design & Contracting Co.</h1>
           <p className="text-sm opacity-80">Proposal Management System</p>
         </div>
       </header>
