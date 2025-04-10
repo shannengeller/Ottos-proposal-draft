@@ -29,7 +29,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     lowPriceRange: '',
     highPriceRange: '',
     jobDurationNumber: '',
-    jobDurationUnit: 'weeks'
+    jobDurationUnit: 'weeks',
+    meetingNotes: ''
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -108,6 +109,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
       scopeOfWork: formData.scopeOfWork,
       priceRange: priceRange,
       jobDuration: jobDuration,
+      meetingNotes: formData.meetingNotes,
       createdAt: new Date()
     });
     
@@ -218,6 +220,18 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
                 </Select>
               </div>
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="meetingNotes">Meeting Notes</Label>
+            <Textarea 
+              id="meetingNotes"
+              name="meetingNotes"
+              placeholder="Add any notes from the meeting discussion"
+              rows={4}
+              value={formData.meetingNotes}
+              onChange={handleChange}
+            />
           </div>
           
           <Button type="submit" className="w-full gap-2">

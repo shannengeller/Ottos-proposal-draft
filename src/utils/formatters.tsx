@@ -8,6 +8,7 @@ export interface ProposalData {
   scopeOfWork: string;
   priceRange: string;
   jobDuration: string;
+  meetingNotes?: string;
   createdAt: Date;
 }
 
@@ -27,6 +28,10 @@ ${data.priceRange}
 Estimated Timeline:
 ${data.jobDuration}
 
+${data.meetingNotes ? `Meeting Notes:
+${data.meetingNotes}
+
+` : ''}
 This is an early assessment based on our discussion. I would be happy to schedule a follow-up meeting to discuss the details further and provide a more comprehensive proposal.
 
 Best regards,
@@ -38,13 +43,14 @@ erich@ottoscontracting.com
 
 // Format the proposal data as CSV
 export function formatAsCSV(data: ProposalData): string {
-  const headers = ['Client Name', 'Client Email', 'Scope of Work', 'Price Range', 'Job Duration', 'Created At'];
+  const headers = ['Client Name', 'Client Email', 'Scope of Work', 'Price Range', 'Job Duration', 'Meeting Notes', 'Created At'];
   const values = [
     data.clientName,
     data.clientEmail,
     `"${data.scopeOfWork.replace(/"/g, '""')}"`, // Escape quotes in CSV
     data.priceRange,
     data.jobDuration,
+    `"${data.meetingNotes ? data.meetingNotes.replace(/"/g, '""') : ''}"`, // Escape quotes in CSV
     format(data.createdAt, 'yyyy-MM-dd HH:mm:ss')
   ];
 
