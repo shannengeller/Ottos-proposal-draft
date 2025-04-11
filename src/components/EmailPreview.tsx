@@ -2,8 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProposalData, formatEmailBody, appendToGoogleSheet } from '@/utils/formatters';
-import { Mail, Copy, Download, FileSpreadsheet } from 'lucide-react';
+import { ProposalData, formatEmailBody } from '@/utils/formatters';
+import { Mail, Copy } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface EmailPreviewProps {
@@ -42,14 +42,6 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({ proposalData }) => {
     window.open(`mailto:${proposalData.clientEmail}?subject=${subject}&body=${body}`);
   };
   
-  const openGoogleSheet = () => {
-    appendToGoogleSheet(proposalData);
-    toast({
-      title: "Google Sheet Opened",
-      description: "The Google Sheet has been opened in a new tab."
-    });
-  };
-  
   return (
     <Card className="w-full otto-shadow">
       <CardHeader className="bg-muted/50">
@@ -72,10 +64,6 @@ const EmailPreview: React.FC<EmailPreviewProps> = ({ proposalData }) => {
           Copy Text
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={openGoogleSheet} className="gap-2">
-            <FileSpreadsheet className="h-4 w-4" />
-            Open Google Sheet
-          </Button>
           <Button onClick={openEmailClient} className="gap-2">
             <Mail className="h-4 w-4" />
             Open in Email Client

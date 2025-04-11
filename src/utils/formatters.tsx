@@ -28,7 +28,7 @@ ${data.priceRange}
 Estimated Timeline:
 ${data.jobDuration}
 
-${data.meetingNotes ? `Meeting Notes:
+${data.meetingNotes ? `Additional Notes:
 ${data.meetingNotes}
 
 ` : ''}
@@ -43,7 +43,7 @@ erich@ottoscontracting.com
 
 // Format the proposal data as CSV
 export function formatAsCSV(data: ProposalData): string {
-  const headers = ['Client Name', 'Client Email', 'Scope of Work', 'Price Range', 'Job Duration', 'Meeting Notes', 'Created At'];
+  const headers = ['Client Name', 'Client Email', 'Scope of Work', 'Price Range', 'Job Duration', 'Additional Notes', 'Created At'];
   const values = [
     data.clientName,
     data.clientEmail,
@@ -73,26 +73,59 @@ export function downloadCSV(data: string, filename: string): void {
 }
 
 // Google Sheets integration
-export function appendToGoogleSheet(data: ProposalData): void {
-  // Google Sheet URL
-  const sheetUrl = "https://docs.google.com/spreadsheets/d/1aDO3XFc3hhJ0RdFXdrzNwvnD7jtLelGBHKAS4bNNlt0/edit?usp=sharing";
+export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string): Promise<{ success: boolean; message: string }> {
+  // If no webhook URL is provided, just open the sheet
+  if (!sheetUrl) {
+    // Google Sheet URL
+    const defaultSheetUrl = "https://docs.google.com/spreadsheets/d/1aDO3XFc3hhJ0RdFXdrzNwvnD7jtLelGBHKAS4bNNlt0/edit?usp=sharing";
+    
+    // Use window.open to navigate to the Google Sheet
+    window.open(defaultSheetUrl, '_blank');
+    
+    return {
+      success: false,
+      message: "Please configure a Google Sheets webhook URL to automatically add data"
+    };
+  }
   
-  // Format the URL for opening with pre-filled data using the form functionality
-  // Create a shareable link that pre-fills a form that appends to the spreadsheet
-  const formattedDate = format(data.createdAt, 'yyyy-MM-dd');
-  
-  // Use window.open to navigate to the Google Sheet
-  window.open(sheetUrl, '_blank');
-  
-  // Display info in console about the sheet connection
-  console.log("Connecting to Google Sheet:", sheetUrl);
-  console.log("To add data to the sheet, you'll need to connect the sheet with a Google Form, or use Google Apps Script.");
-  console.log("Data that would be sent:", {
-    clientName: data.clientName,
-    clientEmail: data.clientEmail,
-    scopeOfWork: data.scopeOfWork,
-    priceRange: data.priceRange,
-    jobDuration: data.jobDuration,
-    date: formattedDate
-  });
+  try {
+    // Format data for the webhook
+    const formattedDate = format(data.createdAt, 'yyyy-MM-dd HH:mm:ss');
+    
+    // Prepare the data for Google Sheets
+    const payload = {
+      clientName: data.clientName,
+      clientEmail: data.clientEmail,
+      scopeOfWork: data.scopeOfWork,
+      priceRange: data.priceRange,
+      jobDuration: data.jobDuration,
+      additionalNotes: data.meetingNotes || '',
+      createdAt: formattedDate
+    };
+    
+    // Send the data to the webhook URL
+    const response = await fetch(sheetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors', // Handle CORS for webhook requests
+      body: JSON.stringify(payload)
+    });
+    
+    console.log("Google Sheets submission attempt completed");
+    
+    // Since we're using no-cors mode, we won't get response details
+    return {
+      success: true,
+      message: "Data sent to Google Sheets webhook"
+    };
+  } catch (error) {
+    console.error("Error sending data to Google Sheets:", error);
+    return {
+      success: false,
+      message: `Failed to send data: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
 }
+
