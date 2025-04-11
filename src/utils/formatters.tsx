@@ -1,4 +1,3 @@
-
 import { format } from 'date-fns';
 
 // Types for our proposal data
@@ -74,19 +73,8 @@ export function downloadCSV(data: string, filename: string): void {
 
 // Google Sheets integration
 export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string): Promise<{ success: boolean; message: string }> {
-  // If no webhook URL is provided, just open the sheet
-  if (!sheetUrl) {
-    // Google Sheet URL
-    const defaultSheetUrl = "https://docs.google.com/spreadsheets/d/1aDO3XFc3hhJ0RdFXdrzNwvnD7jtLelGBHKAS4bNNlt0/edit?usp=sharing";
-    
-    // Use window.open to navigate to the Google Sheet
-    window.open(defaultSheetUrl, '_blank');
-    
-    return {
-      success: false,
-      message: "Please configure a Google Sheets webhook URL to automatically add data"
-    };
-  }
+  // Use the provided Google Apps Script URL as default if no custom webhook is provided
+  const webhookUrl = sheetUrl || "https://script.google.com/macros/s/AKfycbytqQ_aYfYhKFLg74kjuYsHWWDDVswvt-QZipzTdJAPeSkQ7yzX-vJuGsm8fQEGmuOJ/exec";
   
   try {
     // Format data for the webhook
@@ -103,8 +91,10 @@ export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string)
       createdAt: formattedDate
     };
     
+    console.log("Sending data to Google Sheets:", payload);
+    
     // Send the data to the webhook URL
-    const response = await fetch(sheetUrl, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +108,7 @@ export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string)
     // Since we're using no-cors mode, we won't get response details
     return {
       success: true,
-      message: "Data sent to Google Sheets webhook"
+      message: "Data successfully sent to Google Sheets"
     };
   } catch (error) {
     console.error("Error sending data to Google Sheets:", error);
@@ -128,4 +118,3 @@ export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string)
     };
   }
 }
-

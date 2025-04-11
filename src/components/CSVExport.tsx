@@ -16,7 +16,7 @@ interface CSVExportProps {
 const CSVExport: React.FC<CSVExportProps> = ({ proposalData }) => {
   const { toast } = useToast();
   const [webhookUrl, setWebhookUrl] = useState<string>(() => {
-    // Try to get saved webhook URL from localStorage
+    // Try to get saved webhook URL from localStorage, default to empty string
     const saved = localStorage.getItem('googleSheetsWebhook');
     return saved || '';
   });
@@ -40,13 +40,13 @@ const CSVExport: React.FC<CSVExportProps> = ({ proposalData }) => {
 
   const handleSendToGoogleSheets = async () => {
     if (webhookUrl) {
-      // Save to localStorage
+      // Save to localStorage if user provided a custom URL
       localStorage.setItem('googleSheetsWebhook', webhookUrl);
     }
     
     setIsLoading(true);
     
-    const result = await appendToGoogleSheet(proposalData, webhookUrl);
+    const result = await appendToGoogleSheet(proposalData, webhookUrl || undefined);
     
     setIsLoading(false);
     
@@ -82,17 +82,17 @@ const CSVExport: React.FC<CSVExportProps> = ({ proposalData }) => {
               <p className="text-sm font-medium mb-4">Google Sheets Integration</p>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="webhook">Google Sheets Webhook URL</Label>
+                  <Label htmlFor="webhook">Google Sheets Webhook URL (Optional)</Label>
                   <Input
                     id="webhook"
                     type="text"
-                    placeholder="Paste your webhook URL here"
+                    placeholder="Default URL is already configured"
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
                     className="font-mono text-xs"
                   />
                   <p className="text-xs text-muted-foreground">
-                    To automatically add data to Google Sheets, create a webhook using Google Apps Script or Zapier.
+                    A default Google Sheets webhook is already set up. You can optionally override it with your own.
                   </p>
                 </div>
                 <Button 
