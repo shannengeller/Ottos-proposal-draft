@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import ProposalForm from '@/components/ProposalForm';
 import EmailPreview from '@/components/EmailPreview';
-import CSVExport from '@/components/CSVExport';
+import GoogleSheetsExport from '@/components/GoogleSheetsExport';
 import { ProposalData } from '@/utils/formatters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Mail, Database } from 'lucide-react';
@@ -37,16 +37,16 @@ const Index = () => {
                     <Mail className="h-4 w-4" />
                     Email Draft
                   </TabsTrigger>
-                  <TabsTrigger value="csv" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
+                  <TabsTrigger value="sheets" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
                     <Database className="h-4 w-4" />
-                    CSV Export
+                    Google Sheets Export
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="email" className="mt-0">
                   <EmailPreview proposalData={proposalData} />
                 </TabsContent>
-                <TabsContent value="csv" className="mt-0">
-                  <CSVExport proposalData={proposalData} />
+                <TabsContent value="sheets" className="mt-0">
+                  <GoogleSheetsExport proposalData={proposalData} />
                 </TabsContent>
               </Tabs>
             ) : (
@@ -55,7 +55,7 @@ const Index = () => {
                   <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
                   <h3 className="mt-4 text-lg font-medium">No Proposal Data</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Fill out the form to generate an email draft and CSV export
+                    Fill out the form to generate an email draft and export to Google Sheets
                   </p>
                 </div>
               </div>

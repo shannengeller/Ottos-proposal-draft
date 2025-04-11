@@ -1,3 +1,4 @@
+
 import { format } from 'date-fns';
 
 // Types for our proposal data
@@ -38,37 +39,6 @@ Erich
 Otto's Contracting
 erich@ottoscontracting.com
   `;
-}
-
-// Format the proposal data as CSV
-export function formatAsCSV(data: ProposalData): string {
-  const headers = ['Client Name', 'Client Email', 'Scope of Work', 'Price Range', 'Job Duration', 'Additional Notes', 'Created At'];
-  const values = [
-    data.clientName,
-    data.clientEmail,
-    `"${data.scopeOfWork.replace(/"/g, '""')}"`, // Escape quotes in CSV
-    data.priceRange,
-    data.jobDuration,
-    `"${data.meetingNotes ? data.meetingNotes.replace(/"/g, '""') : ''}"`, // Escape quotes in CSV
-    format(data.createdAt, 'yyyy-MM-dd HH:mm:ss')
-  ];
-
-  return `${headers.join(',')}\n${values.join(',')}`;
-}
-
-// Download data as a CSV file
-export function downloadCSV(data: string, filename: string): void {
-  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 }
 
 // Google Sheets integration
