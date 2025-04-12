@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,9 +18,10 @@ import {
 
 interface ProposalFormProps {
   onSubmit: (data: ProposalData) => void;
+  initialData?: ProposalData;
 }
 
-const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
+const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit, initialData }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     clientName: '',
@@ -32,6 +33,32 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
     jobDurationUnit: 'weeks',
     meetingNotes: ''
   });
+  
+  // Fill form with initial data if provided
+  useEffect(() => {
+    if (initialData) {
+      // Parse the price range (e.g. "$5,000 - $7,500" or just "$5,000")
+      const priceRangeParts = initialData.priceRange.split(' - ');
+      const lowPrice = priceRangeParts[0]; // First part is always the low price
+      const highPrice = priceRangeParts.length > 1 ? priceRangeParts[1] : ''; // May not have high price
+      
+      // Parse the job duration (e.g. "2 weeks")
+      const durationParts = initialData.jobDuration.split(' ');
+      const durationNumber = durationParts[0]; // First part is the number
+      const durationUnit = durationParts[1]; // Second part is the unit (days, weeks, months)
+      
+      setFormData({
+        clientName: initialData.clientName,
+        clientEmail: initialData.clientEmail,
+        scopeOfWork: initialData.scopeOfWork,
+        lowPriceRange: lowPrice,
+        highPriceRange: highPrice,
+        jobDurationNumber: durationNumber,
+        jobDurationUnit: durationUnit as 'days' | 'weeks' | 'months',
+        meetingNotes: initialData.meetingNotes || ''
+      });
+    }
+  }, [initialData]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -124,7 +151,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ onSubmit }) => {
       <CardHeader className="bg-muted/50">
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          New Client Proposal
+          {initialData ? "Edit Proposal" : "New Client Proposal"}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
