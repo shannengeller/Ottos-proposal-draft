@@ -63,19 +63,22 @@ export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string)
     
     console.log("Sending data to Google Sheets:", payload);
     
-    // Send the data to the webhook URL
+    // Send the data to the webhook URL - changing from no-cors to cors mode
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      mode: 'no-cors', // Handle CORS for webhook requests
       body: JSON.stringify(payload)
     });
     
-    console.log("Google Sheets submission attempt completed");
+    console.log("Google Sheets response:", response);
     
-    // Since we're using no-cors mode, we won't get response details
+    // Now we can check the response
+    if (!response.ok && response.status !== 0) { // Status 0 can happen with CORS redirects
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
     return {
       success: true,
       message: "Data successfully sent to Google Sheets"
