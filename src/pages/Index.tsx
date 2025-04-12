@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
 import ProposalForm from '@/components/ProposalForm';
-import EmailPreview from '@/components/EmailPreview';
-import GoogleSheetsExport from '@/components/GoogleSheetsExport';
 import ReviewStep from '@/components/ReviewStep';
 import { ProposalData } from '@/utils/formatters';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Mail, Database } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const Index = () => {
   const [proposalData, setProposalData] = useState<ProposalData | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleProposalSubmit = (data: ProposalData) => {
     setProposalData(data);
     setIsReviewing(true);
+    setIsEditing(false);
   };
 
   const handleBackToEdit = () => {
     setIsReviewing(false);
+    setIsEditing(true);
   };
 
   const handleConfirm = () => {
     setIsReviewing(false);
+    setIsEditing(false);
     // Keep the proposal data available for reference
   };
 
@@ -37,7 +38,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div className="md:col-span-2 lg:col-span-1">
-            <ProposalForm onSubmit={handleProposalSubmit} />
+            <ProposalForm onSubmit={handleProposalSubmit} initialData={isEditing ? proposalData : undefined} />
           </div>
 
           <div className="md:col-span-2 lg:col-span-2">
@@ -47,26 +48,14 @@ const Index = () => {
                 onBack={handleBackToEdit} 
                 onConfirm={handleConfirm} 
               />
-            ) : proposalData ? (
-              <Tabs defaultValue="email" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/10">
-                  <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
-                    <Mail className="h-4 w-4" />
-                    Email Draft
-                  </TabsTrigger>
-                  <TabsTrigger value="sheets" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
-                    <Database className="h-4 w-4" />
-                    Google Sheets Export
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="email" className="mt-0">
-                  <EmailPreview proposalData={proposalData} />
-                </TabsContent>
-                <TabsContent value="sheets" className="mt-0">
-                  <GoogleSheetsExport proposalData={proposalData} />
-                </TabsContent>
-              </Tabs>
-            ) : (
+            ) : proposalData && !isEditing ? (
+              <div className="flex flex-col space-y-4">
+                <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+                  <h3 className="text-green-800 font-medium text-lg">Proposal Completed</h3>
+                  <p className="text-green-700">Your proposal has been processed successfully!</p>
+                </div>
+              </div>
+            ) : !isEditing ? (
               <div className="flex items-center justify-center h-full min-h-[300px] rounded-lg border-2 border-dashed border-muted p-8">
                 <div className="text-center">
                   <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
@@ -76,7 +65,7 @@ const Index = () => {
                   </p>
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </main>

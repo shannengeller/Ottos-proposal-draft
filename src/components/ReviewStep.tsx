@@ -19,7 +19,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ proposalData, onBack, onConfirm
   const handleConfirm = async () => {
     try {
       // Send to Google Sheets
-      const sheetResult = await appendToGoogleSheet(proposalData);
+      await appendToGoogleSheet(proposalData);
       
       // Open email client
       const subject = encodeURIComponent(`Proposal for ${proposalData.clientName}`);
