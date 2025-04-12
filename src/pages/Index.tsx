@@ -1,17 +1,28 @@
-
 import React, { useState } from 'react';
 import ProposalForm from '@/components/ProposalForm';
 import EmailPreview from '@/components/EmailPreview';
 import GoogleSheetsExport from '@/components/GoogleSheetsExport';
+import ReviewStep from '@/components/ReviewStep';
 import { ProposalData } from '@/utils/formatters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Mail, Database } from 'lucide-react';
 
 const Index = () => {
   const [proposalData, setProposalData] = useState<ProposalData | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
 
   const handleProposalSubmit = (data: ProposalData) => {
     setProposalData(data);
+    setIsReviewing(true);
+  };
+
+  const handleBackToEdit = () => {
+    setIsReviewing(false);
+  };
+
+  const handleConfirm = () => {
+    setIsReviewing(false);
+    // Keep the proposal data available for reference
   };
 
   return (
@@ -30,7 +41,13 @@ const Index = () => {
           </div>
 
           <div className="md:col-span-2 lg:col-span-2">
-            {proposalData ? (
+            {proposalData && isReviewing ? (
+              <ReviewStep 
+                proposalData={proposalData} 
+                onBack={handleBackToEdit} 
+                onConfirm={handleConfirm} 
+              />
+            ) : proposalData ? (
               <Tabs defaultValue="email" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/10">
                   <TabsTrigger value="email" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white">
