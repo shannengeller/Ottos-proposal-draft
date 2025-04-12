@@ -41,7 +41,7 @@ erich@ottoscontracting.com
   `;
 }
 
-// Google Sheets integration
+// Google Sheets integration - simplified version
 export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string): Promise<{ success: boolean; message: string }> {
   // Use the provided Google Apps Script URL as default if no custom webhook is provided
   const webhookUrl = sheetUrl || "https://script.google.com/macros/s/AKfycbytqQ_aYfYhKFLg74kjuYsHWWDDVswvt-QZipzTdJAPeSkQ7yzX-vJuGsm8fQEGmuOJ/exec";
@@ -63,19 +63,16 @@ export async function appendToGoogleSheet(data: ProposalData, sheetUrl?: string)
     
     console.log("Sending data to Google Sheets:", payload);
     
-    // Send the data to the webhook URL - changing from no-cors to cors mode
+    // Send the data to the webhook URL with simplified approach
     const response = await fetch(webhookUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(payload)
     });
     
     console.log("Google Sheets response:", response);
     
-    // Now we can check the response
-    if (!response.ok && response.status !== 0) { // Status 0 can happen with CORS redirects
+    // Check if the request was successful
+    if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
